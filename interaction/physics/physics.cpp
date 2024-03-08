@@ -89,11 +89,6 @@ void Physics::load_model_into_physics_world(Model* model) {
 			unsigned int j2 = mesh.indices[j + 1];
 			unsigned int j3 = mesh.indices[j + 2];
 
-			//std::cout << "adding triangle:" << '\n';
-			//std::cout << mesh.vertices[j1].position.x << '\n';
-			//std::cout << glm::to_string(mesh.vertices[j2].position) << '\n';
-			//std::cout << glm::to_string(mesh.vertices[j3].position) << '\n';
-
 			// TODO use the helper to convert from glm to jph
 			glm::vec3 temp_v1 = mesh.vertices[j1].position;
 			JPH::Float3 v1 = JPH::Float3(temp_v1.x, temp_v1.y, temp_v1.z);

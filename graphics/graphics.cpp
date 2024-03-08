@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void render(ShaderPipeline shader_pipeline, Model model, JPH::RVec3 character_position, Camera camera, int screen_width, int screen_height) {
+void render(ShaderPipeline shader_pipeline, Physics *physics, PhysicsDebugRenderer *physics_debug_renderer, Model model, JPH::RVec3 character_position, Camera camera, int screen_width, int screen_height) {
     glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -38,6 +38,12 @@ void render(ShaderPipeline shader_pipeline, Model model, JPH::RVec3 character_po
     GLint local_to_world_uniform_location = glGetUniformLocation(shader_pipeline.shader_program_id, "local_to_world");
     glUniformMatrix4fv(local_to_world_uniform_location , 1, GL_FALSE, glm::value_ptr(local_to_world));
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // draw in wireframe
+
     model.draw(shader_pipeline);
+
+    JPH::BodyManager::DrawSettings draw_settings;
+    draw_settings.mDrawShapeWireframe = true;
+    physics->physics_system.DrawBodies(draw_settings, physics_debug_renderer);
 
 }

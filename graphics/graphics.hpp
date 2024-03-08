@@ -5,8 +5,9 @@
 #include "../graphics/model_loading/model_loading.hpp"
 #include "../interaction/physics/physics.hpp"
 #include "../interaction/camera/camera.hpp"
+#include "physics_debug_renderer/physics_debug_renderer.hpp"
 
 // eventually physics needs to be removed from it too big of an argument
-void render(ShaderPipeline shader_pipeline, Model model, JPH::RVec3 character_position, Camera camera, int screen_width, int screen_height);
+void render(ShaderPipeline shader_pipeline, Physics *physics, PhysicsDebugRenderer *physics_debug_renderer, Model model, JPH::RVec3 character_position, Camera camera, int screen_width, int screen_height);
 
 #endif //MWE_MODEL_LOADING_GRAPHICS_HPP
