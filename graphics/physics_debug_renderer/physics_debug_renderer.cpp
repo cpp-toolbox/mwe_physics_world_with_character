@@ -47,12 +47,12 @@ void PhysicsDebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JP
 }
 
 JPH::DebugRenderer::Batch PhysicsDebugRenderer::CreateTriangleBatch(const Triangle *inTriangles, int inTriangleCount) {
-    TriangleData *triangle_data = new TriangleData( inTriangles, inTriangleCount);
+    auto *triangle_data = new TriangleData( inTriangles, inTriangleCount);
     return triangle_data;
 }
 
 JPH::DebugRenderer::Batch PhysicsDebugRenderer::CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const JPH::uint32 *inIndices, int inIndexCount) {
-    TriangleData *triangle_data = new TriangleData(inVertices, inVertexCount, inIndices, inIndexCount);
+    auto *triangle_data = new TriangleData(inVertices, inVertexCount, inIndices, inIndexCount);
     return triangle_data;
 }
 
@@ -64,97 +64,31 @@ void PhysicsDebugRenderer::DrawGeometry(JPH::RMat44Arg inModelMatrix, const JPH:
      * this or else it will not work, each BatchImpl which impelments RenderPrimitive
      */
     const JPH::Array<LOD> &geometry_lods = inGeometry->mLODs;
+    // use lod 0 because our game doesn't use LOD at all
+    TriangleData * triangle_batch = static_cast<TriangleData *>(geometry_lods[0].mTriangleBatch.GetPtr());
 
-    for (size_t lod = 0; lod <= geometry_lods.size(); lod++) {
-        TriangleData * triangle_batch = static_cast<TriangleData *>(geometry_lods[lod].mTriangleBatch.GetPtr());
-        void * ptr = reinterpret_cast<void *>(0x20);
-        if (triangle_batch == ptr or triangle_batch == NULL) {
-//            printf("why do we have a null triangle batch?\n");
-            continue;
-        }
-        if (triangle_batch->uses_indices)  {
-            printf("this triangle batch uses indices\n");
-        } else {
-            printf("this triangle batch does not use indices\n");
-
-            glUseProgram(shader_pipeline.shader_program_id);
-            glBindVertexArray(vao);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-            int num_floats_in_triangle = triangle_batch->num_triangles * 9;
-
-            float vertices[num_floats_in_triangle];
-
-            for (int i = 0; i < triangle_batch->num_triangles; i += 1) {
-                JPH::DebugRenderer::Triangle triangle = triangle_batch->triangles[i];
-
-                JPH::DebugRenderer::Vertex v1 = triangle.mV[0];
-                JPH::DebugRenderer::Vertex v2 = triangle.mV[1];
-                JPH::DebugRenderer::Vertex v3 = triangle.mV[2];
-
-                JPH::DebugRenderer::Vertex raw_tri[3] = {v1, v2, v3};
-
-                int i_stride = i * 9;
-                vertices[i_stride + 0] = v1.mPosition.x;
-                vertices[i_stride + 1] = v1.mPosition.y;
-                vertices[i_stride + 2] = v1.mPosition.z;
-
-                vertices[i_stride + 3] = v2.mPosition.x;
-                vertices[i_stride + 4] = v2.mPosition.y;
-                vertices[i_stride + 5] = v2.mPosition.z;
-
-                vertices[i_stride + 6] = v3.mPosition.x;
-                vertices[i_stride + 7] = v3.mPosition.y;
-                vertices[i_stride + 8] = v3.mPosition.z;
-
-//                for (int j = 0; j < 9; j++) {
-//                    JPH::DebugRenderer::Vertex v = raw_tri[j/3];
-//                    vertices[(i * 9)  + j] = v.mPosition[j % 3];
-////                    printf("loading vertex %d, at position %d into location %d with data %f\n", j/3, j % 3, (i * 9) + j, v.mPosition[j % 3]);
-//                }
-            }
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-            GLuint position_location = glGetAttribLocation(shader_pipeline.shader_program_id, "position");
-            glEnableVertexAttribArray(position_location);
-            glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 3* sizeof(float), (void *) 0);
-
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glDrawArrays(GL_TRIANGLES, 0, triangle_batch->num_triangles * 3);
-
-        }
+    void * ptr = reinterpret_cast<void *>(0x20);
+    if (triangle_batch == ptr or triangle_batch == NULL) {
+        return;
     }
 
-//    lock_guard lock(mPrimitivesLock);
-//
-//    RVec3 offset = mRenderer->GetBaseOffset();
-//
-//    Mat44 model_matrix = inModelMatrix.PostTranslated(-offset).ToMat44();
-//    AABox world_space_bounds = inWorldSpaceBounds;
-//    world_space_bounds.Translate(Vec3(-offset));
-//
-//    // Our pixel shader uses alpha only to turn on/off shadows
-//    Color color = inCastShadow == ECastShadow::On? Color(inModelColor, 255) : Color(inModelColor, 0);
-//
-//    if (inDrawMode == EDrawMode::Wireframe)
-//    {
-//        mWireframePrimitives[inGeometry].mInstances.push_back({ model_matrix, model_matrix.GetDirectionPreservingMatrix(), color, world_space_bounds, inLODScaleSq });
-//        ++mNumInstances;
-//    }
-//    else
-//    {
-//        if (inCullMode != ECullMode::CullFrontFace)
-//        {
-//            mPrimitives[inGeometry].mInstances.push_back({ model_matrix, model_matrix.GetDirectionPreservingMatrix(), color, world_space_bounds, inLODScaleSq });
-//            ++mNumInstances;
-//        }
-//
-//        if (inCullMode != ECullMode::CullBackFace)
-//        {
-//            mPrimitivesBackFacing[inGeometry].mInstances.push_back({ model_matrix, model_matrix.GetDirectionPreservingMatrix(), color, world_space_bounds, inLODScaleSq });
-//            ++mNumInstances;
-//        }
-//    }
+    if (triangle_batch->uses_indices)  {
+        printf("this triangle batch uses indices\n");
+    } else {
+        printf("this triangle batch does not use indices\n");
+
+        glUseProgram(shader_pipeline.shader_program_id);
+        glBindVertexArray(vao);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, triangle_batch->triangle_vertices.size() * sizeof(float), &triangle_batch->triangle_vertices.front(), GL_STATIC_DRAW);
+
+        GLuint position_location = glGetAttribLocation(shader_pipeline.shader_program_id, "position");
+        glEnableVertexAttribArray(position_location);
+        glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 3* sizeof(float), (void *) 0);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDrawArrays(GL_TRIANGLES, 0, triangle_batch->num_triangles * 3);
+    }
 }
 
 //void PhysicsDebugRenderer::FinalizePrimitive()
@@ -205,27 +139,6 @@ void PhysicsDebugRenderer::DrawGeometry(JPH::RMat44Arg inModelMatrix, const JPH:
 //}
 
 void PhysicsDebugRenderer::DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, ECastShadow inCastShadow) {
-//    RVec3 offset = mRenderer->GetBaseOffset();
-//
-//    Vec3 v1(inV1 - offset);
-//    Vec3 v2(inV2 - offset);
-//    Vec3 v3(inV3 - offset);
-//
-//    lock_guard lock(mPrimitivesLock);
-//
-//    EnsurePrimitiveSpace(3);
-//
-//    // Set alpha to zero if we don't want to cast shadows to notify the pixel shader
-//    Color color(inColor, inCastShadow == ECastShadow::Off? 0 : 0xff);
-//
-//    // Construct triangle
-//    new ((Triangle *)mLockedVertices) Triangle(v1, v2, v3, color);
-//    mLockedVertices += 3;
-//
-//    // Update bounding box
-//    mLockedPrimitiveBounds.Encapsulate(v1);
-//    mLockedPrimitiveBounds.Encapsulate(v2);
-//    mLockedPrimitiveBounds.Encapsulate(v3);
 }
 
 //void PhysicsDebugRenderer::DrawInstances(const Geometry *inGeometry, const Array<int> &inStartIdx)
@@ -250,12 +163,6 @@ void PhysicsDebugRenderer::DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, 
 //}
 
 void PhysicsDebugRenderer::DrawText3D(JPH::RVec3Arg inPosition, const JPH::string_view &inString, JPH::ColorArg inColor, float inHeight) {
-//    RVec3 offset = mRenderer->GetBaseOffset();
-//
-//    Vec3 pos(inPosition - offset);
-//
-//    lock_guard lock(mTextsLock);
-//    mTexts.emplace_back(pos, inString, inColor, inHeight);
 }
 
 //void PhysicsDebugRenderer::DrawLines()

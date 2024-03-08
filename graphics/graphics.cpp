@@ -40,7 +40,7 @@ void render(ShaderPipeline shader_pipeline, Physics *physics, PhysicsDebugRender
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // draw in wireframe
 
-    model.draw(shader_pipeline);
+//    model.draw(shader_pipeline);
 
     JPH::BodyManager::DrawSettings draw_settings;
     draw_settings.mDrawShapeWireframe = true;
