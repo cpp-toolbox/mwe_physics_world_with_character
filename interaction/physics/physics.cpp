@@ -5,9 +5,11 @@
 #include "Jolt/Jolt.h"
 #include "Jolt/Physics/Collision/Shape/CylinderShape.h"
 #include "Jolt/Physics/Collision/Shape/MeshShape.h"
+#include "../../helpers/conversions.hpp"
+#include "Jolt/Physics/Collision/Shape/ConvexHullShape.h"
 
-// Disable common warnings triggered by Jolt, you can use JPH_SUPPRESS_WARNING_PUSH / JPH_SUPPRESS_WARNING_POP to store and restore the warning state
-JPH_SUPPRESS_WARNINGS
+//// Disable common warnings triggered by Jolt, you can use JPH_SUPPRESS_WARNING_PUSH / JPH_SUPPRESS_WARNING_POP to store and restore the warning state
+//JPH_SUPPRESS_WARNINGS
 
 Physics::Physics() {
 	this->initialize_engine();
@@ -41,30 +43,29 @@ void Physics::initialize_engine() {
 
 }
 
+
+
 void Physics::initialize_world_objects() {
+
+    physics_system.SetGravity(JPH::Vec3(0, -15, 0));
+
 	JPH::BodyInterface &body_interface = physics_system.GetBodyInterface();
 
-	// commented out the floor
+    JPH::Array<JPH::Vec3> vertices = fibonacci_sphere(60);
+    JPH::ConvexHullShapeSettings low_poly_ball_settings(vertices, JPH::cDefaultConvexRadius);
+    JPH::ShapeSettings::ShapeResult ball_shape_result = low_poly_ball_settings.Create();
 
-	//JPH::BoxShapeSettings floor_shape_settings(JPH::Vec3(100.0f, 1.0f, 100.0f));
+    if (!ball_shape_result.IsValid()) {
+        throw std::runtime_error("ball shape is invalid");
+    }
 
-	//JPH::ShapeSettings::ShapeResult floor_shape_result = floor_shape_settings.Create();
-	//JPH::ShapeRefC floor_shape = floor_shape_result.Get(); // We don't expect an error here, but you can check floor_shape_result for HasError() / GetError()
-	//JPH::BodyCreationSettings floor_settings(floor_shape, JPH::RVec3(0.0_r, -1.0_r, 0.0_r), JPH::Quat::sIdentity(), JPH::EMotionType::Static, Layers::NON_MOVING);
-	//JPH::Body *floor = body_interface.CreateBody(floor_settings); // Note that if we run out of bodies this can return nullptr
-    //body_interface.AddBody(floor->GetID(), JPH::EActivation::DontActivate);
-	//created_body_ids.push_back(floor->GetID());
+    JPH::ShapeRefC ball_shape = ball_shape_result.Get(); // We don't expect an error here, but you can check floor_shape_result for HasError() / GetError()
 
-
-	// commented out the sphere
-
-	// JPH::BodyCreationSettings sphere_settings(new JPH::SphereShape(0.5f), JPH::RVec3(0.0_r, 2.0_r, 0.0_r), JPH::Quat::sIdentity(), JPH::EMotionType::Dynamic, Layers::MOVING);
-    // sphere_id = body_interface.CreateAndAddBody(sphere_settings, JPH::EActivation::Activate);
-
-
-	// created_body_ids.push_back(sphere_id);
-
-    // body_interface.SetLinearVelocity(sphere_id, JPH::Vec3(0.0f, -5.0f, 0.0f));
+    JPH::BodyCreationSettings ball_creation_settings(ball_shape, JPH::RVec3(5.0_r, 20.0_r, 5.0_r), JPH::Quat::sIdentity(), JPH::EMotionType::Dynamic, Layers::MOVING);
+    JPH::Body *ball = body_interface.CreateBody(ball_creation_settings); // Note that if we run out of bodies this can return nullptr
+    body_interface.AddBody(ball->GetID(), JPH::EActivation::Activate);
+    created_body_ids.push_back(ball->GetID());
+    body_interface.SetLinearVelocity(ball->GetID(), JPH::Vec3(0.0f, -5.0f, 0.0f));
 
 	create_character();
 }
@@ -82,14 +83,12 @@ void Physics::load_model_into_physics_world(Model* model) {
 
 		JPH::TriangleList triangles;
 
-		// this only works if we know each face is a triangle,
-		// TODO explain why it's guarenteed to be triangles
+        assert(mesh.indices.size() % 3 == 0); // only contains triangles
 		for (int j = 0; j < mesh.indices.size(); j += 3) {
 			unsigned int j1 = mesh.indices[j];
 			unsigned int j2 = mesh.indices[j + 1];
 			unsigned int j3 = mesh.indices[j + 2];
 
-			// TODO use the helper to convert from glm to jph
 			glm::vec3 temp_v1 = mesh.vertices[j1].position;
 			JPH::Float3 v1 = JPH::Float3(temp_v1.x, temp_v1.y, temp_v1.z);
 
@@ -113,7 +112,7 @@ void Physics::load_model_into_physics_world(Model* model) {
 		if (result.IsValid()) {
 			mesh_shape = result.Get();
 		} else {
-			// TODO Error handling
+            throw std::runtime_error("couldn't get resulting shape");
 		}
 
 		JPH::BodyCreationSettings mesh_settings(mesh_shape, JPH::RVec3(0.0_r, 0.0_r, 0.0_r), JPH::Quat::sIdentity(), JPH::EMotionType::Static, Layers::NON_MOVING);
@@ -132,7 +131,7 @@ void Physics::create_character() {
 	JPH::Ref<JPH::CharacterVirtualSettings> settings = new JPH::CharacterVirtualSettings();
 	settings->mShape = new JPH::CylinderShape(0.5f * this->character_height + this->character_radius, this->character_radius);
 
-	character = new JPH::CharacterVirtual(settings, JPH::RVec3::sZero(), JPH::Quat::sIdentity(), &physics_system);
+	character = new JPH::CharacterVirtual(settings, JPH::RVec3(0.0f, 10.0f, 0.0f), JPH::Quat::sIdentity(), &physics_system);
 }
 
 /**
@@ -179,20 +178,3 @@ void Physics::clean_up_world() {
 
 	std::cout << "successfully cleaned up world" << std::endl;
 }
-
-
-// void Physics::print_positions() {
-	//print positions of all objects
-	//for (int j = dynamics_world->getNumCollisionObjects() - 1; j >= 0; j--)
-	//{
-	//	btCollisionObject* obj = dynamics_world->getCollisionObjectArray()[j];
-	//	btRigidBody* body = btRigidBody::upcast(obj);
-	//	btTransform trans;
-	//	if (body && body->getMotionState()) {
-	//		body->getMotionState()->getWorldTransform(trans);
-	//	} else {
-	//		trans = obj->getWorldTransform();
-	//	}
-	//	printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
-	//}
-//}

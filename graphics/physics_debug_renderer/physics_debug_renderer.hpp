@@ -12,7 +12,7 @@
 class PhysicsDebugRenderer final : public JPH::DebugRenderer {
 
 public:
-    PhysicsDebugRenderer(ShaderPipeline shader_pipeline);
+    PhysicsDebugRenderer();
 
     ~PhysicsDebugRenderer();
 
@@ -55,19 +55,12 @@ class ThatIHaveToMake : public JPH::RefTarget<ThatIHaveToMake> {
 
 class TriangleData : public JPH::RefTargetVirtual ,public ThatIHaveToMake {
 public:
+
     int num_triangles;
     std::vector<float> triangle_vertices;
-    const JPH::DebugRenderer::Triangle *triangles;
-
-    const JPH::DebugRenderer::Vertex *vertices;
-    int num_vertices;
-    const JPH::uint32 *indices;
-    int num_indices;
-    bool uses_indices;
 
     TriangleData(const JPH::DebugRenderer::Triangle *triangles, int num_triangles) {
-        this->num_triangles = num_triangles;
-        this->triangles = triangles;
+
         this->uses_indices = false;
 
         for (int i = 0; i < num_triangles; i += 1) {
@@ -91,12 +84,28 @@ public:
         }
     }
 
+    bool uses_indices;
+
+    std::vector<float> vertices;
+    std::vector<JPH::uint32> indices;
+//    std::vector<int> indices;
+
     TriangleData(const JPH::DebugRenderer::Vertex *vertices, int num_vertices, const JPH::uint32 *indices, int num_indices) {
-        this->num_vertices = num_vertices;
-        this->vertices = vertices;
         this->uses_indices = true;
-        this->num_indices = num_indices;
-        this->indices = indices;
+
+        for (int i = 0; i < num_vertices; i++) {
+            JPH::DebugRenderer::Vertex vertex = vertices[i];
+            this->vertices.push_back(vertex.mPosition.x);
+            this->vertices.push_back(vertex.mPosition.y);
+            this->vertices.push_back(vertex.mPosition.z);
+        }
+
+        for (int i = 0; i < num_indices; i++) {
+            JPH::uint32 index = indices[i];
+//            int index = indices[i];
+            this->indices.push_back(index);
+        }
+
     }
 
     virtual void AddRef() override { ThatIHaveToMake::AddRef(); }

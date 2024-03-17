@@ -24,11 +24,10 @@
 
 #include <Jolt/Physics/Character/Character.h> // temporary
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
-const float movement_acceleration = 10.0f;
-const int speed = 10;
+const float movement_acceleration = 15.0f;
 
 InputSnapshot input_snapshot;
 Character character;
@@ -124,18 +123,13 @@ std::optional<InitializationData> initialize() {
 
   glEnable(GL_DEPTH_TEST); // configure global opengl state
 
-  ShaderPipeline shader_pipeline;
-  shader_pipeline.load_in_shaders_from_file(
+  ShaderPipeline shader_pipeline(
       "../graphics/shaders/CWL_v_transformation_with_texture_position_passthrough.vert",
       "../graphics/shaders/textured.frag"); // build and compile shaders
 
-  Model model;
-  model.load_model("../assets/maps/overlook.obj");
-  //    model.load_model("../assets/backpack/backpack.obj");
-  model.configure_vertex_interpretation_for_shader(shader_pipeline);
+  Model model("../assets/maps/ground_test.obj", shader_pipeline.shader_program_id);
 
   physics.load_model_into_physics_world(&model);
-
 
   InitializationData initialization_data = {shader_pipeline, model, window};
 
@@ -158,21 +152,9 @@ void update(double time_since_last_update) {
       glm::vec3(updated_velocity.x, 0.0f, updated_velocity.z);
   glm::vec3 y_axis = glm::vec3(0, 1, 0);
 
-  // glm::vec3 character_xz_velocity_wrt_look_direction =
-  // convert_xz_velocity_to_character_look_basis(current_xz_velocity, -
-  // player.camera.yaw_angle);
-
-  // updated_velocity += right_angle_velocity_bonus(current_xz_velocity,
-  // input_vec, time_since_last_update, movement_acceleration * 3);
-
   float friction = 0.983f;
 
   updated_velocity *= friction; // friction
-
-  //    if (glm::length(physics.character.velocity) <= .01) { // kill velocity
-  //    so no sliding
-  //        physics.character.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-  //    }
 
   // apply gravity
   updated_velocity +=
@@ -202,25 +184,11 @@ int main() {
   }
   auto [shader_pipeline, model, window] = id.value();
 
-  PhysicsDebugRenderer physics_debug_renderer(shader_pipeline);
-  // while (!glfwWindowShouldClose(window)) {
-  //     // per-frame time logic
-  //     float currentFrame = static_cast<float>(glfwGetTime());
-  //     deltaTime = currentFrame - lastFrame;
-  //     lastFrame = currentFrame;
+  PhysicsDebugRenderer physics_debug_renderer;
 
-  //  //      process_input(window);
-  //    render(shader_pipeline, model, character, camera, SCR_WIDTH,
-  //    SCR_HEIGHT);
-
-  //    update(deltaTime);
-
-  //    // glfw: swap buffers and poll IO events (keys pressed/released, mouse
-  //    moved etc.) glfwSwapBuffers(window); glfwPollEvents();
-  //}
+//  todo extract game loop into a function which takes in function pointers and runs them in specific places within the loop
 
   double time_elapsed_since_start_of_program = 0;
-
   // N iterations per second
   double update_rate_hz = 60.0;
   // 1/N seconds per iteration
