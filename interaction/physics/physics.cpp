@@ -7,6 +7,7 @@
 #include "Jolt/Physics/Collision/Shape/MeshShape.h"
 #include "../../helpers/conversions.hpp"
 #include "Jolt/Physics/Collision/Shape/ConvexHullShape.h"
+#include "Jolt/Physics/Collision/Shape/CapsuleShape.h"
 
 //// Disable common warnings triggered by Jolt, you can use JPH_SUPPRESS_WARNING_PUSH / JPH_SUPPRESS_WARNING_POP to store and restore the warning state
 //JPH_SUPPRESS_WARNINGS
@@ -129,7 +130,8 @@ void Physics::load_model_into_physics_world(Model* model) {
  */
 void Physics::create_character() {
 	JPH::Ref<JPH::CharacterVirtualSettings> settings = new JPH::CharacterVirtualSettings();
-	settings->mShape = new JPH::CylinderShape(0.5f * this->character_height + this->character_radius, this->character_radius);
+	settings->mShape = new JPH::CapsuleShape(0.5f * this->character_height , this->character_radius);
+    settings->mSupportingVolume = JPH::Plane(JPH::Vec3::sAxisY(), -this->character_radius); // Accept contacts that touch the lower sphere of the capsule
 
 	character = new JPH::CharacterVirtual(settings, JPH::RVec3(0.0f, 10.0f, 0.0f), JPH::Quat::sIdentity(), &physics_system);
 }

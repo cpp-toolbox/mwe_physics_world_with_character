@@ -1,0 +1,72 @@
+# Blender 3.6.9 MTL File: 'ground_test.blend'
+# www.blender.org
+
+newmtl grass.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd -s 50 50 50 ../assets/textures/grass/Grass 9 - 128x128.png
+
+newmtl tile.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd ../assets/textures/tile/Tile 20 - 128x128.png
+
+newmtl tile.002
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd ../assets/textures/tile/Tile 20 - 128x128.png
+
+newmtl tile.003
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd ../assets/textures/tile/Tile 20 - 128x128.png
+
+newmtl tile.004
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd ../assets/textures/tile/Tile 20 - 128x128.png
+
+newmtl tile.005
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd ../assets/textures/tile/Tile 20 - 128x128.png
+
+newmtl tile.006
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd ../assets/textures/tile/Tile 20 - 128x128.png
