@@ -5,12 +5,12 @@ project(mwe_physics_world_with_character)
 add_executable(mwe_physics_world_with_character
         main.cpp
 
-        interaction/input/input_snapshot.cpp
+        interaction/input_snapshot/input_snapshot.cpp
         interaction/physics/physics.cpp
         interaction/camera/camera.cpp
         interaction/mouse/mouse.cpp
 
-        helpers/conversions.cpp
+        math/conversions.cpp
 
         graphics/physics_debug_renderer/physics_debug_renderer.cpp
         graphics/shader_pipeline/shader_pipeline.cpp

@@ -10,11 +10,11 @@
 
 #include "interaction/camera/camera.hpp"
 #include "interaction/character/character.hpp"
-#include "interaction/input/input_snapshot.hpp"
+#include "interaction/input_snapshot/input_snapshot.hpp"
 #include "interaction/mouse/mouse.hpp"
 #include "interaction/physics/physics.hpp"
 
-#include "helpers/conversions.hpp"
+#include "math/conversions.hpp"
 
 #include "graphics/graphics.hpp"
 #include "graphics/model_loading/model_loading.hpp"
@@ -150,6 +150,7 @@ void update(double time_since_last_update) {
 
   glm::vec3 current_xz_velocity =
       glm::vec3(updated_velocity.x, 0.0f, updated_velocity.z);
+
   glm::vec3 y_axis = glm::vec3(0, 1, 0);
 
   float friction = 0.983f;
@@ -164,7 +165,7 @@ void update(double time_since_last_update) {
   // jump if needed.
   if (input_snapshot.jump_pressed &&
       physics.character->GetGroundState() ==
-          JPH::Character::EGroundState::OnGround) {
+          JPH::CharacterVirtual::EGroundState::OnGround) {
     updated_velocity +=
         (float)10 * convert_vec3_from_jolt_to_glm(physics.character->GetUp());
   }
