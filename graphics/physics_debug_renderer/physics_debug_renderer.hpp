@@ -61,6 +61,7 @@ public:
 
     TriangleData(const JPH::DebugRenderer::Triangle *triangles, int num_triangles) {
 
+        this->num_triangles = num_triangles;
         this->uses_indices = false;
 
         for (int i = 0; i < num_triangles; i += 1) {

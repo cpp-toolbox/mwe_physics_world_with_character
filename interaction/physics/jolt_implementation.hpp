@@ -18,7 +18,7 @@
 #include <iostream>
 #include <cstdarg>
 #include <thread>
-
+#include <sys/types.h>
 // Disable common warnings triggered by Jolt, you can use JPH_SUPPRESS_WARNING_PUSH / JPH_SUPPRESS_WARNING_POP to store and restore the warning state
 JPH_SUPPRESS_WARNINGS
 
@@ -41,7 +41,7 @@ static void TraceImpl(const char *inFMT, ...) {
 #ifdef JPH_ENABLE_ASSERTS
 
 // Callback for asserts, connect this to your own assert handler if you have one
-static bool AssertFailedImpl(const char *inExpression, const char *inMessage, const char *inFile, uint inLine) {
+static bool AssertFailedImpl(const char *inExpression, const char *inMessage, const char *inFile, unsigned int inLine) {
     // Print to the TTY
     std::cout << inFile << ":" << inLine << ": (" << inExpression << ") " << (inMessage != nullptr ? inMessage : "")
               << std::endl;
@@ -85,7 +85,7 @@ public:
 namespace JPH::BroadPhaseLayers {
     static constexpr JPH::BroadPhaseLayer NON_MOVING(0);
     static constexpr JPH::BroadPhaseLayer MOVING(1);
-    static constexpr uint NUM_LAYERS(2);
+    static constexpr unsigned int NUM_LAYERS(2);
 };
 
 // JPH::BroadPhaseLayerInterface implementation
@@ -98,7 +98,7 @@ public:
         mObjectToBroadPhase[Layers::MOVING] = JPH::BroadPhaseLayers::MOVING;
     }
 
-    virtual uint GetNumBroadPhaseLayers() const override {
+    virtual unsigned int GetNumBroadPhaseLayers() const override {
         return JPH::BroadPhaseLayers::NUM_LAYERS;
     }
 

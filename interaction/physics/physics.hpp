@@ -24,10 +24,10 @@ class Physics {
 		void create_character();
 		void clean_up_world();
 
-		const uint cMaxBodies = 1024;
-		const uint cNumBodyMutexes = 0;
-		const uint cMaxBodyPairs = 1024;
-		const uint cMaxContactConstraints = 1024;
+		const unsigned int cMaxBodies = 1024;
+		const unsigned int cNumBodyMutexes = 0;
+		const unsigned int cMaxBodyPairs = 1024;
+		const unsigned int cMaxContactConstraints = 1024;
         const int cCollisionSteps = 1;
 
 		const float character_height = 2.0f;
