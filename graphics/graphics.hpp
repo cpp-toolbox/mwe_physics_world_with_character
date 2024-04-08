@@ -1,6 +1,10 @@
 #ifndef MWE_MODEL_LOADING_GRAPHICS_HPP
 #define MWE_MODEL_LOADING_GRAPHICS_HPP
 
+#ifndef JPH_DEBUG_RENDERER
+#define JPH_DEBUG_RENDERER
+#endif
+
 #include "shader_pipeline/shader_pipeline.hpp"
 #include "../graphics/model_loading/model_loading.hpp"
 #include "../interaction/physics/physics.hpp"

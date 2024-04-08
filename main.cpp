@@ -1,5 +1,6 @@
-#include <glad/gl.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <glad/gl.h>
 
 #include <glm/glm.hpp>
 
@@ -46,17 +47,14 @@ void on_window_size_change(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
 
-void on_mouse_move(GLFWwindow *window, double mouse_position_x,
-                   double mouse_position_y) {
-  auto [change_in_yaw_angle, change_in_pitch_angle] =
-      mouse.get_yaw_pitch_deltas(mouse_position_x, mouse_position_y);
+void on_mouse_move(GLFWwindow *window, double mouse_position_x, double mouse_position_y) {
+  auto [change_in_yaw_angle, change_in_pitch_angle] = mouse.get_yaw_pitch_deltas(mouse_position_x, mouse_position_y);
   camera.update_look_direction(change_in_yaw_angle, change_in_pitch_angle);
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this
 // frame and react accordingly
-static void process_input(GLFWwindow *window, int key, int scancode, int action,
-                          int mods) {
+static void process_input(GLFWwindow *window, int key, int scancode, int action, int mods) {
   // TODO figure out how to do mappings of key to function to simplify
   //
   if (key == GLFW_KEY_Q) {
@@ -107,8 +105,7 @@ struct InitializationData {
 
 std::optional<InitializationData> initialize() {
 
-  auto optional_window =
-      initialize_glfw_and_return_window(SCR_WIDTH, SCR_HEIGHT);
+  auto optional_window = initialize_glfw_and_return_window(SCR_WIDTH, SCR_HEIGHT);
 
   if (!optional_window.has_value()) {
     return std::nullopt;
@@ -123,9 +120,8 @@ std::optional<InitializationData> initialize() {
 
   glEnable(GL_DEPTH_TEST); // configure global opengl state
 
-  ShaderPipeline shader_pipeline(
-      "../graphics/shaders/CWL_v_transformation_with_texture_position_passthrough.vert",
-      "../graphics/shaders/textured.frag"); // build and compile shaders
+  ShaderPipeline shader_pipeline("../graphics/shaders/CWL_v_transformation_with_texture_position_passthrough.vert",
+                                 "../graphics/shaders/textured.frag"); // build and compile shaders
 
   Model model("../assets/maps/ground_test.obj", shader_pipeline.shader_program_id);
 
@@ -139,17 +135,13 @@ std::optional<InitializationData> initialize() {
 void update(double time_since_last_update) {
 
   // in jolt y is z
-  glm::vec3 updated_velocity =
-      convert_vec3_from_jolt_to_glm(physics.character->GetLinearVelocity());
+  glm::vec3 updated_velocity = convert_vec3_from_jolt_to_glm(physics.character->GetLinearVelocity());
 
-  glm::vec3 input_vec =
-      input_snapshot.input_snapshot_to_input_direction(camera);
+  glm::vec3 input_vec = input_snapshot.input_snapshot_to_input_direction(camera);
 
-  updated_velocity +=
-      input_vec * movement_acceleration * (float)time_since_last_update;
+  updated_velocity += input_vec * movement_acceleration * (float)time_since_last_update;
 
-  glm::vec3 current_xz_velocity =
-      glm::vec3(updated_velocity.x, 0.0f, updated_velocity.z);
+  glm::vec3 current_xz_velocity = glm::vec3(updated_velocity.x, 0.0f, updated_velocity.z);
 
   glm::vec3 y_axis = glm::vec3(0, 1, 0);
 
@@ -159,19 +151,15 @@ void update(double time_since_last_update) {
 
   // apply gravity
   updated_velocity +=
-      convert_vec3_from_jolt_to_glm(physics.physics_system.GetGravity()) *
-      (float)time_since_last_update;
+      convert_vec3_from_jolt_to_glm(physics.physics_system.GetGravity()) * (float)time_since_last_update;
 
   // jump if needed.
   if (input_snapshot.jump_pressed &&
-      physics.character->GetGroundState() ==
-          JPH::CharacterVirtual::EGroundState::OnGround) {
-    updated_velocity +=
-        (float)10 * convert_vec3_from_jolt_to_glm(physics.character->GetUp());
+      physics.character->GetGroundState() == JPH::CharacterVirtual::EGroundState::OnGround) {
+    updated_velocity += (float)10 * convert_vec3_from_jolt_to_glm(physics.character->GetUp());
   }
 
-  physics.character->SetLinearVelocity(
-      convert_vec3_from_glm_to_jolt(updated_velocity));
+  physics.character->SetLinearVelocity(convert_vec3_from_glm_to_jolt(updated_velocity));
 
   physics.update(time_since_last_update);
 }
@@ -187,7 +175,8 @@ int main() {
 
   PhysicsDebugRenderer physics_debug_renderer;
 
-//  todo extract game loop into a function which takes in function pointers and runs them in specific places within the loop
+  //  todo extract game loop into a function which takes in function pointers and runs them in specific places within
+  //  the loop
 
   double time_elapsed_since_start_of_program = 0;
   // N iterations per second
@@ -210,18 +199,15 @@ int main() {
     if (first_iteration) {
       // The last few lines of this iteration are next loops last iteration.
       first_iteration = false;
-      time_at_start_of_iteration_last_iteration =
-          time_at_start_of_iteration; // (C)
-      time_elapsed_since_last_state_update =
-          time_at_start_of_iteration; // (F): Pretend an update has occurred at
-                                      // time 0 for bootstrapping purposes
+      time_at_start_of_iteration_last_iteration = time_at_start_of_iteration; // (C)
+      time_elapsed_since_last_state_update = time_at_start_of_iteration;      // (F): Pretend an update has occurred at
+                                                                              // time 0 for bootstrapping purposes
       continue;
     }
 
     // Note that this measures how long it takes for the code to start at (T)
     // and arrive back at (T) (G): Due to (C) tesli == 0 on the second iteration
-    duration_of_last_iteration =
-        time_at_start_of_iteration - time_at_start_of_iteration_last_iteration;
+    duration_of_last_iteration = time_at_start_of_iteration - time_at_start_of_iteration_last_iteration;
 
     // None of the updates that could have happened during the last iteration
     // have been applied This is because last iteration, we retroactively
@@ -230,8 +216,7 @@ int main() {
 
     // since the value of teslsu is only updated by (E), this would always be
     // false, but (F) bootstraps the process
-    bool enough_time_for_updates =
-        time_elapsed_since_last_state_update >= time_between_state_update;
+    bool enough_time_for_updates = time_elapsed_since_last_state_update >= time_between_state_update;
 
     // Due to the (G), an update could only happen starting from the 3rd
     // iteration
@@ -239,8 +224,7 @@ int main() {
 
       // retroactively apply updates that should have occurred during previous
       // iterations
-      double time_remaining_to_fit_updates =
-          time_elapsed_since_last_state_update;
+      double time_remaining_to_fit_updates = time_elapsed_since_last_state_update;
       bool enough_time_to_fit_update = true;
 
       while (enough_time_to_fit_update) {
@@ -248,8 +232,7 @@ int main() {
         update(time_between_state_update);
 
         time_remaining_to_fit_updates -= time_between_state_update;
-        enough_time_to_fit_update =
-            time_remaining_to_fit_updates >= time_between_state_update;
+        enough_time_to_fit_update = time_remaining_to_fit_updates >= time_between_state_update;
       }
       time_elapsed_since_last_state_update = time_remaining_to_fit_updates;
     }
