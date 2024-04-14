@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyManager.h>
 
 void bind_CWL_matrix_uniforms(GLuint shader_program_id, int screen_width, int screen_height,

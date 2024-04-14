@@ -149,15 +149,18 @@ void update(double time_since_last_update) {
 
   updated_velocity *= friction; // friction
 
-  // apply gravity
-  updated_velocity +=
-      convert_vec3_from_jolt_to_glm(physics.physics_system.GetGravity()) * (float)time_since_last_update;
-
   // jump if needed.
-  if (input_snapshot.jump_pressed &&
-      physics.character->GetGroundState() == JPH::CharacterVirtual::EGroundState::OnGround) {
-    updated_velocity += (float)10 * convert_vec3_from_jolt_to_glm(physics.character->GetUp());
+  if (physics.character->GetGroundState() == JPH::CharacterVirtual::EGroundState::OnGround) {
+    updated_velocity.y = 0; // empty out vertical velocity while on ground
+    if (input_snapshot.jump_pressed) {
+      updated_velocity +=
+          (float)1200 * convert_vec3_from_jolt_to_glm(physics.character->GetUp()) * (float)time_since_last_update;
+    }
   }
+
+  glm::vec3 gravity = convert_vec3_from_jolt_to_glm(physics.physics_system.GetGravity());
+  // apply gravity
+  updated_velocity += gravity * (float)time_since_last_update;
 
   physics.character->SetLinearVelocity(convert_vec3_from_glm_to_jolt(updated_velocity));
 
@@ -238,7 +241,8 @@ int main() {
     }
 
     JPH::RVec3 character_position = physics.character->GetPosition();
-    render(shader_pipeline, &physics, &physics_debug_renderer, model, character_position, camera, SCR_WIDTH, SCR_HEIGHT);
+    render(shader_pipeline, &physics, &physics_debug_renderer, model, character_position, camera, SCR_WIDTH,
+           SCR_HEIGHT);
     glfwSwapBuffers(window);
     glfwPollEvents();
 
