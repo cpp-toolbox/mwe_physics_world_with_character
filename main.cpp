@@ -23,14 +23,10 @@
 #include "graphics/shader_pipeline/shader_pipeline.hpp"
 #include "graphics/window/window.hpp"
 
-#include <Jolt/Physics/Character/Character.h> // temporary
-
 unsigned int SCR_WIDTH = 1920;
 unsigned int SCR_HEIGHT = 1080;
 
 const float movement_acceleration = 15.0f;
-
-InputSnapshot input_snapshot;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -41,9 +37,9 @@ struct InitializationData {
   GLFWwindow *window;
 };
 
-InitializationData initialize(Physics *physics, Mouse *mouse, Camera *camera) {
+InitializationData initialize(Physics *physics, InputSnapshot *input_snapshot, Mouse *mouse, Camera *camera) {
   GLFWwindow *window =
-      initialize_glfw_glad_and_return_window(&SCR_WIDTH, &SCR_HEIGHT, "mwe physics character", false, &input_snapshot);
+      initialize_glfw_glad_and_return_window(&SCR_WIDTH, &SCR_HEIGHT, "mwe physics character", false, input_snapshot);
 
   glEnable(GL_DEPTH_TEST); // configure global opengl state
   ShaderPipeline shader_pipeline("../graphics/shaders/CWL_v_transformation_with_texture_position_passthrough.vert",
@@ -61,13 +57,13 @@ std::function<int()> termination_closure(GLFWwindow *window) {
 }
 
 int main() {
-
   Character character;
   Camera camera;
   Mouse mouse;
   Physics physics;
+  InputSnapshot input_snapshot;
 
-  auto [shader_pipeline, model, window] = initialize(&physics, &mouse, &camera);
+  auto [shader_pipeline, model, window] = initialize(&physics, &input_snapshot, &mouse, &camera);
   PhysicsDebugRenderer physics_debug_renderer;
 
   std::function<void()> render = create_render_closure(&shader_pipeline, &model, &physics, &camera, window,
