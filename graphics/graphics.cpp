@@ -1,8 +1,5 @@
 #include "graphics.hpp"
 
-#include <GLFW/glfw3.h>
-#include <glad/gl.h>
-
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -10,28 +7,41 @@
 #include <Jolt/Physics/Body/BodyManager.h>
 
 void bind_CWL_matrix_uniforms(GLuint shader_program_id, int screen_width, int screen_height,
-                              glm::vec3 character_position, Camera camera);
+                              glm::vec3 character_position, Camera *camera);
 
-void render(ShaderPipeline shader_pipeline, Physics *physics, PhysicsDebugRenderer *physics_debug_renderer, Model model,
-            JPH::RVec3 character_position, Camera camera, int screen_width, int screen_height) {
+void render(ShaderPipeline *shader_pipeline, Physics *physics, PhysicsDebugRenderer *physics_debug_renderer, Model *map,
+            JPH::RVec3 character_position, Camera *camera, int screen_width, int screen_height) {
   glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glm::vec3 glm_character_position = glm::vec3(character_position.GetX(), character_position.GetY(),
                                                character_position.GetZ()); // TEMP use helpers after
 
-  bind_CWL_matrix_uniforms(shader_pipeline.shader_program_id, screen_width, screen_height, glm_character_position,
+  bind_CWL_matrix_uniforms(shader_pipeline->shader_program_id, screen_width, screen_height, glm_character_position,
                            camera);
   bind_CWL_matrix_uniforms(physics_debug_renderer->shader_pipeline.shader_program_id, screen_width, screen_height,
                            glm_character_position, camera);
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // draw in wireframe
 
-  model.draw();
+  map->draw();
 
   JPH::BodyManager::DrawSettings draw_settings;
   draw_settings.mDrawShapeWireframe = true;
   physics->physics_system.DrawBodies(draw_settings, physics_debug_renderer);
+}
+
+std::function<void()> create_render_closure(ShaderPipeline *shader_pipeline, Model *map, Physics *physics,
+                                            Camera *camera, GLFWwindow *window,
+                                            PhysicsDebugRenderer *physics_debug_renderer, unsigned int screen_width_px,
+                                            unsigned int screen_height_px) {
+  return [shader_pipeline, map, physics, window, camera, physics_debug_renderer, screen_width_px, screen_height_px]() {
+    JPH::RVec3 character_position = physics->character->GetPosition();
+    render(shader_pipeline, physics, physics_debug_renderer, map, character_position, camera, screen_width_px,
+           screen_height_px);
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+  };
 }
 
 /**
@@ -58,7 +68,7 @@ void render(ShaderPipeline shader_pipeline, Physics *physics, PhysicsDebugRender
  * \param character_position
  */
 void bind_CWL_matrix_uniforms(GLuint shader_program_id, int screen_width, int screen_height,
-                              glm::vec3 character_position, Camera camera) {
+                              glm::vec3 character_position, Camera *camera) {
 
   // don't forget to enable shader before setting uniforms
   glUseProgram(shader_program_id);
@@ -70,7 +80,7 @@ void bind_CWL_matrix_uniforms(GLuint shader_program_id, int screen_width, int sc
   glUniformMatrix4fv(camera_to_clip_uniform_location, 1, GL_FALSE, glm::value_ptr(camera_to_clip));
 
   glm::mat4 world_to_camera =
-      glm::lookAt(character_position, character_position + camera.look_direction, camera.up_direction);
+      glm::lookAt(character_position, character_position + camera->look_direction, camera->up_direction);
   GLint world_to_camera_uniform_location = glGetUniformLocation(shader_program_id, "world_to_camera");
   glUniformMatrix4fv(world_to_camera_uniform_location, 1, GL_FALSE, glm::value_ptr(world_to_camera));
 

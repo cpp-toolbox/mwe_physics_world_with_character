@@ -10,6 +10,10 @@ add_executable(mwe_physics_world_with_character
         interaction/physics/physics.cpp
         interaction/camera/camera.cpp
         interaction/mouse/mouse.cpp
+        interaction/update.cpp
+        interaction/window/window.cpp
+
+        game_loop/game_loop.cpp
 
         math/conversions.cpp
 

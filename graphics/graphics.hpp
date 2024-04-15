@@ -11,7 +11,16 @@
 #include "../interaction/camera/camera.hpp"
 #include "physics_debug_renderer/physics_debug_renderer.hpp"
 
-// eventually physics needs to be removed from it too big of an argument
-void render(ShaderPipeline shader_pipeline, Physics *physics, PhysicsDebugRenderer *physics_debug_renderer, Model model, JPH::RVec3 character_position, Camera camera, int screen_width, int screen_height);
+#include <GLFW/glfw3.h>
+#include <glad/gl.h>
 
-#endif //MWE_MODEL_LOADING_GRAPHICS_HPP
+// eventually physics needs to be removed from it too big of an argument
+void render(ShaderPipeline *shader_pipeline, Physics *physics, PhysicsDebugRenderer *physics_debug_renderer, Model *map,
+            JPH::RVec3 character_position, Camera *camera, int screen_width, int screen_height);
+
+std::function<void()> create_render_closure(ShaderPipeline *shader_pipeline, Model *map, Physics *physics,
+                                            Camera *camera, GLFWwindow *window,
+                                            PhysicsDebugRenderer *physics_debug_renderer, unsigned int screen_width_px,
+                                            unsigned int screen_height_px);
+
+#endif // MWE_MODEL_LOADING_GRAPHICS_HPP

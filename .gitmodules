@@ -40,3 +40,9 @@
 [submodule "graphics/physics_debug_renderer"]
 	path = graphics/physics_debug_renderer
 	url = git@github.com:opengl-toolbox/physics_debug_renderer.git
+[submodule "game_loop"]
+	path = game_loop
+	url = git@github.com:opengl-toolbox/game_loop.git
+[submodule "interaction/window"]
+	path = interaction/window
+	url = git@github.com:opengl-toolbox/window.git
