@@ -35,13 +35,6 @@ InputSnapshot input_snapshot;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-std::function<void(double, double)> on_mouse_move_closure(Mouse *mouse, Camera *camera) {
-  return [mouse, camera](double mouse_position_x, double mouse_position_y) {
-    auto [change_in_yaw_angle, change_in_pitch_angle] = mouse->get_yaw_pitch_deltas(mouse_position_x, mouse_position_y);
-    camera->update_look_direction(change_in_yaw_angle, change_in_pitch_angle);
-  };
-}
-
 struct InitializationData {
   ShaderPipeline shader_pipeline;
   Model model;
