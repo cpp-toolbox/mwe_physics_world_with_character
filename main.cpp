@@ -23,8 +23,8 @@
 #include "graphics/shader_pipeline/shader_pipeline.hpp"
 #include "graphics/window/window.hpp"
 
-unsigned int SCR_WIDTH = 1920;
-unsigned int SCR_HEIGHT = 1080;
+unsigned int SCR_WIDTH = 600;
+unsigned int SCR_HEIGHT = 600;
 
 const float movement_acceleration = 15.0f;
 
