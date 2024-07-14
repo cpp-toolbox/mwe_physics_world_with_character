@@ -6,13 +6,13 @@
 #endif
 
 #include "shader_pipeline/shader_pipeline.hpp"
-#include "../graphics/model_loading/model_loading.hpp"
+#include "textured_model_loading/textured_model_loading.hpp"
 #include "../interaction/physics/physics.hpp"
 #include "../interaction/camera/camera.hpp"
 #include "physics_debug_renderer/physics_debug_renderer.hpp"
 
 #include <GLFW/glfw3.h>
-#include <glad/gl.h>
+#include <glad/glad.h>
 
 // eventually physics needs to be removed from it too big of an argument
 void render(ShaderPipeline *shader_pipeline, Physics *physics, PhysicsDebugRenderer *physics_debug_renderer, Model *map,

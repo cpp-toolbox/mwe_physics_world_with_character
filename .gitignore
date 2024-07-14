@@ -1,6 +1,15 @@
+# ide stuff
 .idea
-cmake-build-debug
-cmake-build-release
-cmake-build-default
+# cmake stuff
 build
+cmake-build-debug
+build_debug
+cmake-build-release
+build_release
+CMakeUserPresets.json
+# clang stuff
+.clangd
+.clang-format
 .cache
+# note that in the context of clang_formatting we cannot include .gitignore because then it wouldn't keep track of it.
+.gitignore
